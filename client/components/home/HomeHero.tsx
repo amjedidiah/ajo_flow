@@ -142,14 +142,14 @@ function PodPreviewCard() {
 
         {/* amount */}
         <p className="text-3xl font-black text-brand-primary mb-1">₦5,000</p>
-        <p className="text-xs text-brand-muted mb-4">daily, weekly, or monthly · 4 members</p>
+        <p className="text-xs text-brand-muted mb-4">weekly · 4 members</p>
 
         {/* progress */}
         <div className="mb-3">
           <div className="flex justify-between text-xs text-brand-muted mb-1.5">
             <span>Pool progress</span>
             <span className="font-semibold text-brand-text">
-              ₦150,000 / ₦200,000
+              ₦15,000 / ₦20,000
             </span>
           </div>
           <div className="h-2 bg-brand-surface rounded-full overflow-hidden">
