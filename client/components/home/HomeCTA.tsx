@@ -1,8 +1,11 @@
+"use client";
+
 import Section from "@/components/ui/Section";
 import Motion from "@/components/shared/Motion";
 import { fadeUp } from "@/components/home/HomeHero";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 const getDetails = (hasToken: boolean) => {
   if (!hasToken)
@@ -29,7 +32,8 @@ const getDetails = (hasToken: boolean) => {
   };
 };
 
-function HomeCTA({ hasToken }: Readonly<{ hasToken: boolean }>) {
+function HomeCTA() {
+  const { hasToken } = useAuthContext();
   const { title, subTitle, description, action } = getDetails(hasToken);
 
   return (

@@ -51,12 +51,22 @@ export function AuthProvider({ children }: Readonly<PropsWithChildren>) {
     setAccessToken(newToken);
     setToken(newToken);
     setUser(newUser);
+    // Set session hint cookie so proxy.ts knows we're authenticated.
+    // In cross-origin deployments the HttpOnly refresh_token cookie lives on
+    // the API domain and is invisible to proxy.ts on the frontend domain.
+    if (typeof document !== "undefined") {
+      document.cookie = `${SESSION_HINT_COOKIE}=1; path=/; max-age=${7 * 24 * 60 * 60}; samesite=lax`;
+    }
   }, []);
 
   const clearAuth = useCallback(() => {
     setAccessToken(null);
     setToken(null);
     setUser(null);
+    // Clear session hint cookie
+    if (typeof document !== "undefined") {
+      document.cookie = `${SESSION_HINT_COOKIE}=; path=/; max-age=0`;
+    }
   }, []);
 
   useEffect(() => {

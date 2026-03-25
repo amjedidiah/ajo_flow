@@ -1,5 +1,8 @@
+"use client";
+
 import PodCard from "@/components/shared/PodCard";
 import Motion from "@/components/shared/Motion";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 export interface PodSummary {
   _id: string;
@@ -11,10 +14,9 @@ export interface PodSummary {
   status: "active" | "completed";
 }
 
-function PodList({
-  pods,
-  userId,
-}: Readonly<{ pods: PodSummary[]; userId?: string | null }>) {
+function PodList({ pods }: Readonly<{ pods: PodSummary[] }>) {
+  const { user } = useAuthContext();
+  const userId = user?.id ?? null;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
       {pods.map((pod, i) => {

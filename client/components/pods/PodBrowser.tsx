@@ -44,7 +44,7 @@ function PodBrowser({
   const [amountFilter, setAmountFilter] = useState<AmountFilter>("all");
   const [openOnly, setOpenOnly] = useState(false);
   const [createOpen, setCreateOpen] = useState(initialCreateOpen);
-  const { hasToken, user } = useAuthContext();
+  const { hasToken } = useAuthContext();
 
   const filtered = useMemo(() => {
     return initialPods.filter((pod) => {
@@ -180,7 +180,7 @@ function PodBrowser({
             </div>
           </div>
         ) : (
-          <PodList pods={filtered} userId={user?.id ?? null} />
+          <PodList pods={filtered} />
         )}
       </section>
     </>

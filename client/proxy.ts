@@ -12,7 +12,6 @@ const PROTECTED_PREFIXES = ["/dashboard", "/my-pods", "/payment"];
 const AUTH_PAGES = new Set(["/login", "/register"]);
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET ?? "");
-const isProduction = process.env.NODE_ENV === "production";
 
 interface TokenPayload {
   id: string;
@@ -40,18 +39,24 @@ export async function proxy(request: NextRequest) {
   );
   const isAuthPage = AUTH_PAGES.has(pathname);
 
-  // Verify the refresh token if present
+  // Verify the refresh token if present (same-origin deployments).
   const user = refreshToken ? await verifyRefreshToken(refreshToken) : null;
 
+  // In cross-origin deployments (e.g. Vercel frontend + Render backend),
+  // the HttpOnly refresh_token cookie lives on the API domain and is
+  // invisible here. Fall back to the session_hint cookie which the client
+  // sets after a successful login.
+  const hasSession = !!user || request.cookies.has(SESSION_HINT_COOKIE);
+
   // Enforce auth gate for protected routes
-  if (isProtected && !user) {
+  if (isProtected && !hasSession) {
     const loginUrl = new URL("/login", request.url);
     loginUrl.searchParams.set("next", pathname);
     return NextResponse.redirect(loginUrl);
   }
 
   // Redirect authenticated users away from login/register
-  if (isAuthPage && user) {
+  if (isAuthPage && hasSession) {
     return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
@@ -60,29 +65,19 @@ export async function proxy(request: NextRequest) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set(USER_ID_HEADER, user.id);
     requestHeaders.set(USER_EMAIL_HEADER, user.email);
-    const response = NextResponse.next({
+    return NextResponse.next({
       request: { headers: requestHeaders },
     });
+  }
 
-    // Ensure the JS-readable session hint cookie is present
-    if (!request.cookies.has(SESSION_HINT_COOKIE)) {
-      response.cookies.set(SESSION_HINT_COOKIE, "1", {
-        httpOnly: false,
-        secure: isProduction,
-        sameSite: isProduction ? "none" : "lax",
-        path: "/",
-        maxAge: 7 * 24 * 60 * 60, // 7 days — matches refresh token lifetime
-      });
-    }
+  // No valid session and no hint — clean up stale hint cookie if present
+  if (!hasSession && request.cookies.has(SESSION_HINT_COOKIE)) {
+    const response = NextResponse.next();
+    response.cookies.delete(SESSION_HINT_COOKIE);
     return response;
   }
 
-  // No valid session — clear the hint cookie if it was left over (e.g. after logout)
-  const response = NextResponse.next();
-  if (request.cookies.has(SESSION_HINT_COOKIE)) {
-    response.cookies.delete(SESSION_HINT_COOKIE);
-  }
-  return response;
+  return NextResponse.next();
 }
 
 export const config = {

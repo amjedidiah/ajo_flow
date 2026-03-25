@@ -1,17 +1,14 @@
-import { notFound } from "next/navigation";
-import AdminPodClient, { Pod } from "@/components/pods/AdminPodClient";
+import AdminPodGuard from "@/components/pods/AdminPodGuard";
 import { getPod } from "@/lib/fetchers";
-import { getServerUser } from "@/lib/server-auth";
+import type { Pod } from "@/components/pods/AdminPodClient";
 
 async function ManagePodPage({
   params,
 }: Readonly<{ params: Promise<{ id: string }> }>) {
   const { id } = await params;
-  const [pod, serverUser] = await Promise.all([getPod<Pod>(id), getServerUser()]);
+  const pod = await getPod<Pod>(id);
 
-  if (!serverUser || serverUser.id !== pod.createdBy) notFound();
-
-  return <AdminPodClient pod={pod} />;
+  return <AdminPodGuard pod={pod} />;
 }
 
 export default ManagePodPage;

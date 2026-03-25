@@ -15,7 +15,6 @@ import PodList from "@/components/shared/PodList";
 import Faq from "@/components/home/FAQ";
 import HomeHero, { fadeUp, HexPattern } from "@/components/home/HomeHero";
 import HomeCTA from "@/components/home/HomeCTA";
-import { getServerUser } from "@/lib/server-auth";
 
 const currentYear = new Date().getFullYear();
 
@@ -45,16 +44,11 @@ async function getFeaturedPods(): Promise<PodSummary[]> {
 
 /* ─── page ─── */
 async function LandingPage() {
-  const [featuredPods, serverUser] = await Promise.all([
-    getFeaturedPods(),
-    getServerUser(),
-  ]);
-  const hasToken = !!serverUser;
-
+  const featuredPods = await getFeaturedPods();
   return (
     <main className="overflow-x-hidden">
       {/* ── HERO ── */}
-      <HomeHero hasToken={hasToken} />
+      <HomeHero />
 
       {/* ── STAT BAR ── */}
       <section className="relative bg-brand-card border-y border-brand-border overflow-hidden">
@@ -371,7 +365,7 @@ async function LandingPage() {
               </div>
             </Motion>
 
-            <PodList pods={featuredPods} userId={serverUser?.id ?? null} />
+            <PodList pods={featuredPods} />
           </Section>
         </section>
       )}
@@ -380,7 +374,7 @@ async function LandingPage() {
       <Faq />
 
       {/* ── CTA ── */}
-      <HomeCTA hasToken={hasToken} />
+      <HomeCTA />
 
       {/* ── FOOTER ── */}
       <footer className="relative bg-brand-primary text-brand-card/50 text-center text-xs py-8 px-6 overflow-hidden">

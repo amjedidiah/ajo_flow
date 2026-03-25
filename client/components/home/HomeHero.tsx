@@ -1,7 +1,10 @@
+"use client";
+
 import Link from "next/link";
 import { type Variants } from "framer-motion";
 import { Brain, ArrowRight, ChevronDown } from "lucide-react";
 import Motion from "@/components/shared/Motion";
+import { useAuthContext } from "@/contexts/AuthContext";
 
 /* ─── animation helpers ─── */
 export const fadeUp: Variants = {
@@ -213,7 +216,8 @@ function PodPreviewCard() {
   );
 }
 
-function HomeHero({ hasToken }: Readonly<{ hasToken: boolean }>) {
+function HomeHero() {
+  const { hasToken } = useAuthContext();
   return (
     <section className="relative min-h-screen bg-brand-primary flex items-center text-brand-card overflow-hidden">
       <HexPattern />
