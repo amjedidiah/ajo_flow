@@ -12,7 +12,8 @@ router.post(
   "/run-evaluations",
   async (req: Request, res: Response): Promise<void> => {
     const secret = req.headers["x-cron-secret"];
-    if (!secret || secret !== process.env.CRON_SECRET) {
+    const secretValue = Array.isArray(secret) ? secret[0] : secret;
+    if (!secretValue || secretValue !== process.env.CRON_SECRET) {
       res.status(401).json({ error: "Invalid or missing x-cron-secret" });
       return;
     }

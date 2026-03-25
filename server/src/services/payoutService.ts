@@ -188,7 +188,17 @@ export async function triggerPayout(podId: string): Promise<IPod> {
     pod.currentCycle += 1;
   }
 
-  await pod.save();
+  // Use findOneAndUpdate with version check for atomic queue pop
+  const updatedPod = await Pod.findOneAndUpdate(
+    { _id: podId, __v: pod.__v },
+    {
+      $pop: { payoutQueue: -1 },
+      $push: { paidOutMembers: recipientId },
+      $inc: { __v: 1 },
+    },
+    { new: true },
+  );
+  if (!updatedPod) throw new Error("Concurrent payout detected — aborting");
 
   try {
     await Transaction.create({
@@ -225,7 +235,11 @@ function isTimeoutOrNetworkError(err: unknown): boolean {
   if (!err || typeof err !== "object") return false;
   const axiosErr = err as { code?: string; response?: unknown };
   // ECONNABORTED = axios timeout, ECONNRESET/ETIMEDOUT = network-level
-  if (["ECONNABORTED", "ECONNRESET", "ETIMEDOUT", "ENETUNREACH"].includes(axiosErr.code ?? "")) {
+  if (
+    ["ECONNABORTED", "ECONNRESET", "ETIMEDOUT", "ENETUNREACH"].includes(
+      axiosErr.code ?? "",
+    )
+  ) {
     return true;
   }
   // No HTTP response at all means the request may not have completed

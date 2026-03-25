@@ -220,6 +220,11 @@ describe("POST /auth/logout", () => {
     const cookie = res.headers.get("set-cookie") ?? "";
     // Cookie should be cleared (max-age=0 or expires in past)
     expect(cookie).toContain("refresh_token=");
+    // Verify cookie is actually cleared
+    expect(
+      cookie.toLowerCase().includes("max-age=0") ||
+      cookie.toLowerCase().includes("expires=thu, 01 jan 1970")
+    ).toBe(true);
   });
 });
 

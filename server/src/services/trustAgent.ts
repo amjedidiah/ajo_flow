@@ -67,9 +67,9 @@ export async function scoreTrust(
       : `This member is at position ${userData.queuePosition} of ${userData.totalMembers} in the payout queue — they have been contributing for ${userData.queuePosition - 1} cycle(s) without receiving a payout yet.`;
 
   const avgTrustLine =
-    userData.platformHistory?.avgTrustScore === null
-      ? ""
-      : `\n- Average trust score across pods: ${userData.platformHistory?.avgTrustScore.toFixed(0)}`;
+    userData.platformHistory?.avgTrustScore
+      ? `\n- Average trust score across pods: ${userData.platformHistory?.avgTrustScore.toFixed(0)}`
+      : "";
 
   const platformSection = userData.platformHistory
     ? `

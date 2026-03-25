@@ -13,10 +13,25 @@ import { evaluateAndReorderQueue, cycleDueDate } from "./queueService";
  * Pods are checked hourly rather than once daily so that daily-frequency pods
  * are processed promptly.
  */
+let isRunning = false;
+
 export function startCronJobs() {
   cron.schedule("0 * * * *", async () => {
+    if (isRunning) {
+      console.warn("[cron] Previous evaluation still running, skipping this tick");
+      return;
+    }
+
+    isRunning = true;
     console.info("[cron] Running cycle-deadline evaluation check…");
-    await runCycleDeadlineEvaluations();
+    
+    try {
+      await runCycleDeadlineEvaluations();
+    } catch (err) {
+      console.error("[cron] Unhandled error in cycle-deadline evaluations:", err);
+    } finally {
+      isRunning = false;
+    }
   });
 
   console.info("[cron] Scheduled: cycle-deadline evaluations (every hour)");
@@ -73,7 +88,8 @@ export async function runCycleDeadlineEvaluations(): Promise<{
 
       // Mark the pod as evaluated
       pod.lastEvaluatedAt = now;
-      await pod.save();
+      await Pod.findByIdAndUpdate(pod._id, { lastEvaluatedAt: now });
+
 
       evaluated.push(pod.name);
     } catch (err) {

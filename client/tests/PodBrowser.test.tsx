@@ -140,6 +140,7 @@ describe("PodBrowser", () => {
     render(<PodBrowser initialPods={pods} />);
     // The Create Pod button should be a link to /login when not authenticated
     const createLink = screen.getByText("+ Create Pod").closest("a");
-    expect(createLink?.getAttribute("href")).toContain("/login");
+    expect(createLink).not.toBeNull();
+    expect(createLink!.getAttribute("href")).toContain("/login");
   });
 });

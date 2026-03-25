@@ -114,7 +114,7 @@ describe("RegisterForm", () => {
 
     await waitFor(() => {
       expect(toastErrorFn).toHaveBeenCalledWith(
-        expect.stringContaining("8 characters"),
+        expect.stringContaining("uppercase"),
       );
     });
     expect(registerMock).not.toHaveBeenCalled();

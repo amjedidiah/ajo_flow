@@ -12,10 +12,14 @@ import User from "../models/User";
 import Transaction from "../models/Transaction";
 
 async function makeUser(name: string) {
+  const randomSuffix = Math.floor(Math.random() * 1000000)
+    .toString()
+    .padStart(6, "0");
+
   return User.create({
     name,
-    email: `${name.toLowerCase().replaceAll(/\s+/g, "")}@test.com`,
-    phone: "+2348100000000",
+    email: `${name.toLowerCase().replaceAll(/\s+/g, "")}-${randomSuffix}@test.com`,
+    phone: `+23481${randomSuffix}`,
     passwordHash: process.env.SEED_PASSWORD,
     bankAccountNumber: "0123456789",
     bankCode: "057",

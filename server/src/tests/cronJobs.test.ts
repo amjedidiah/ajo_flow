@@ -15,6 +15,7 @@ import {
   mock,
 } from "bun:test";
 import { connectTestDB, disconnectTestDB, clearTestDB } from "./setup";
+import { cycleDueDate } from "../services/queueService";
 
 // Track calls to evaluateAndReorderQueue
 const evaluateCalls: string[] = [];
@@ -30,7 +31,6 @@ mock.module("../services/queueService", () => ({
 import { runCycleDeadlineEvaluations } from "../services/cronJobs";
 import Pod from "../models/Pod";
 import User from "../models/User";
-import { cycleDueDate } from "../services/queueService";
 
 async function makeUser(name: string) {
   return User.create({
@@ -76,7 +76,7 @@ describe("runCycleDeadlineEvaluations", () => {
 
   it("skips a pod whose deadline has not passed yet", async () => {
     const user = await makeUser("Bola");
-    // Daily pod created now — cycle 1 deadline is end of today
+    // Monthly pod created now — cycle 1 deadline is end of month
     await Pod.create({
       name: "Future Deadline Pod",
       contributionAmount: 5000,

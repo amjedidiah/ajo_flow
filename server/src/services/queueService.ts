@@ -119,7 +119,9 @@ export async function evaluateAndReorderQueue(
             outcome = paidAt && paidAt > due ? "late" : "on_time";
           }
         } else if (cycle === pod.currentCycle) {
-          // Current cycle with no payment yet — pending, not missed
+          // Current cycle with no successful payment yet:
+          // - If a charge failed, treat as missed (affects trust score)
+          // - Otherwise, pending (member may still pay)
           outcome = hasFailed ? "missed" : "pending";
         } else {
           outcome = "missed";
