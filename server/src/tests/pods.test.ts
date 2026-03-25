@@ -15,6 +15,7 @@ async function makeUser(name: string) {
   return User.create({
     name,
     email: `${name.toLowerCase().replaceAll(/\s+/g, "")}@test.com`,
+    phone: "+2348100000000",
     passwordHash: process.env.SEED_PASSWORD,
     bankAccountNumber: "0123456789",
     bankCode: "057",
@@ -49,6 +50,7 @@ describe("pod reset logic", () => {
       resetCount: 0,
       contributionTotal: 45000,
       createdBy: a._id,
+      walletPin: "1234",
     });
 
     // Apply the same logic as the route handler
@@ -82,6 +84,7 @@ describe("pod reset logic", () => {
       resetCount: 2,
       contributionTotal: 5000,
       createdBy: a._id,
+      walletPin: "1234",
     });
 
     pod.payoutQueue = [...pod.members];
@@ -112,6 +115,7 @@ describe("multi-cycle payment cap", () => {
       currentCycle: 1,
       contributionTotal: 0,
       createdBy: a._id,
+      walletPin: "1234",
     });
 
     // Amara has already paid cycles 1 and 2
@@ -163,6 +167,7 @@ describe("multi-cycle payment cap", () => {
       currentCycle: 1,
       contributionTotal: 0,
       createdBy: a._id,
+      walletPin: "1234",
     });
 
     await Transaction.insertMany([

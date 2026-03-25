@@ -19,6 +19,7 @@ async function makeUser(name: string) {
   return User.create({
     name,
     email: `${name.toLowerCase().replaceAll(/\s+/g, "")}@test.com`,
+    phone: "+2348100000000",
     passwordHash: process.env.SEED_PASSWORD,
     bankAccountNumber: "0123456789",
     bankCode: "057",
@@ -48,6 +49,7 @@ async function makePod(
     contributionTotal: 0,
     createdBy: members[0],
     walletId: "WALLET-001",
+    walletPin: "1234",
     ...overrides,
   });
 }
@@ -114,7 +116,7 @@ describe("triggerPayout", () => {
       status: "success",
     });
     expect(disbursement).not.toBeNull();
-    expect(disbursement?.amount).toBe(10000); // 2 members × ₦5,000
+    expect(disbursement?.amount).toBe(15000); // (maxMembers 4 - 1) × ₦5,000 = ₦15,000 net payout
   });
 
   it("throws when payout queue is empty", async () => {
@@ -143,6 +145,7 @@ describe("triggerPayout", () => {
       currentCycle: 1,
       contributionTotal: 0,
       createdBy: a._id,
+      walletPin: "1234",
       // walletId intentionally omitted
     });
 

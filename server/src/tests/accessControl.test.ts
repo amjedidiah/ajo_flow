@@ -49,6 +49,7 @@ async function makeUser(name: string) {
   return User.create({
     name,
     email: `${name.toLowerCase()}@ac-test.com`,
+    phone: "+2348100000000",
     passwordHash: hash,
     bankAccountNumber: "0123456789",
     bankCode: "057",
@@ -74,6 +75,7 @@ async function makePod(creatorId: string, memberIds: string[] = []) {
     currentCycle: 1,
     contributionTotal: 0,
     createdBy: creatorId,
+    walletPin: "1234",
   });
 }
 
@@ -204,7 +206,7 @@ describe("GET /api/pods/:id/contribution-matrix — admin only", () => {
     expect(res.status).toBe(403);
   });
 
-  it("returns 403 for a member who is not the admin", async () => {
+  it("returns 200 for a pod member (member-accessible, not admin-only)", async () => {
     const admin = await makeUser("Admin");
     const member = await makeUser("Member");
     const pod = await makePod(String(admin._id), [String(member._id)]);
@@ -212,7 +214,7 @@ describe("GET /api/pods/:id/contribution-matrix — admin only", () => {
       `/api/pods/${pod._id}/contribution-matrix`,
       tokenFor(String(member._id)),
     );
-    expect(res.status).toBe(403);
+    expect(res.status).toBe(200);
   });
 
   it("returns 200 for the pod admin", async () => {

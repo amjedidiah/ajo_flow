@@ -66,13 +66,18 @@ export async function scoreTrust(
       ? "This member has already received their payout this cycle."
       : `This member is at position ${userData.queuePosition} of ${userData.totalMembers} in the payout queue — they have been contributing for ${userData.queuePosition - 1} cycle(s) without receiving a payout yet.`;
 
+  const avgTrustLine =
+    userData.platformHistory?.avgTrustScore === null
+      ? ""
+      : `\n- Average trust score across pods: ${userData.platformHistory?.avgTrustScore.toFixed(0)}`;
+
   const platformSection = userData.platformHistory
     ? `
 Platform-wide history (across all pods this user has joined):
 - Total pods joined: ${userData.platformHistory.totalPodsJoined}
 - On-time payments (all pods): ${userData.platformHistory.onTimeAcrossAllPods}
 - Late payments (all pods): ${userData.platformHistory.lateAcrossAllPods}
-- Missed payments (all pods): ${userData.platformHistory.missedAcrossAllPods}${userData.platformHistory.avgTrustScore === null ? "" : `\n- Average trust score across pods: ${userData.platformHistory.avgTrustScore.toFixed(0)}`}
+- Missed payments (all pods): ${userData.platformHistory.missedAcrossAllPods}${avgTrustLine}
 
 Use the platform-wide history as context: a member with a strong track record across multiple pods is more trustworthy than their current pod stats alone might suggest. For new members with no history in this pod, lean on the platform-wide data as a baseline.`
     : "";

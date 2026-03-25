@@ -18,6 +18,7 @@
     "Esusu",
     "faqs",
     "Fcreate",
+    "Femi",
     "Fpods",
     "geist",
     "HMAC",
@@ -39,6 +40,7 @@
     "paymentgateway",
     "quickteller",
     "refetches",
+    "Registrator",
     "ROSCA",
     "Tunde",
     "txnref",
@@ -48,7 +50,9 @@
     "upserts",
     "vercel",
     "virtualaccounts",
+    "weakpass",
     "wema",
-    "Wema"
+    "Wema",
+    "zzzznonexistent"
   ]
 }
