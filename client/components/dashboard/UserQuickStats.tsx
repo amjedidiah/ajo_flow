@@ -203,12 +203,12 @@ function UserQuickStats() {
             {stats.upcomingPayments.map((p) => (
               <li
                 key={p.podId}
-                className="flex items-center justify-between text-sm py-2.5 first:pt-0 last:pb-0"
+                className="flex flex-col gap-1 py-2.5 text-sm first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between"
               >
-                <span className="text-brand-text font-medium truncate max-w-[60%]">
+                <span className="max-w-full truncate font-medium text-brand-text sm:max-w-[60%]">
                   {p.podName}
                 </span>
-                <span className="text-brand-muted shrink-0">
+                <span className="shrink-0 text-brand-muted">
                   {ngn(p.amount)}{" "}
                   <span className="text-xs">/ {freqLabel[p.frequency]}</span>
                 </span>

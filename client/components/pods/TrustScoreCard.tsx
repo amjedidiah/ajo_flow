@@ -98,13 +98,13 @@ function TrustScoreCard({
 
         {/* Score ring or fallback avatar */}
         {score === undefined ? (
-          <span className="w-8 h-8 rounded-full bg-brand-primary/10 text-brand-primary font-semibold flex items-center justify-center text-xs shrink-0">
+          <span className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-brand-primary/10 text-brand-primary font-semibold flex items-center justify-center text-xs shrink-0">
             {name.charAt(0).toUpperCase()}
           </span>
         ) : (
-          <div className="relative w-11 h-11 shrink-0">
+          <div className="relative w-10 h-10 sm:w-11 sm:h-11 shrink-0">
             <ScoreRing score={score} />
-            <span className="absolute inset-0 flex items-center justify-center text-xs font-bold text-brand-text">
+            <span className="absolute inset-0 flex items-center justify-center text-[10px] sm:text-xs font-bold text-brand-text">
               {score}
             </span>
           </div>

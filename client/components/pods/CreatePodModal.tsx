@@ -97,7 +97,7 @@ function CreatePodModal({ isOpen, onClose }: Readonly<CreatePodModalProps>) {
             onClick={handleClose}
           >
             <div
-              className="bg-brand-card rounded-2xl shadow-xl w-full max-w-md p-6 flex flex-col gap-5"
+              className="bg-brand-card rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 flex flex-col gap-5"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-start justify-between">

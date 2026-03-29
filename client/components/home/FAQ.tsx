@@ -107,7 +107,7 @@ function FAQItem({ q, a }: Readonly<{ q: string; a: string }>) {
 
 export default function FAQ() {
   return (
-    <section className="py-24 px-6 bg-brand-card">
+    <section id="faq" className="py-24 px-6 bg-brand-card">
       <Section className="max-w-3xl mx-auto">
         <Motion variants={fadeUp} className="text-center mb-12">
           <p className="text-brand-accent text-sm font-semibold uppercase tracking-widest mb-3">

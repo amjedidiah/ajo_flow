@@ -74,14 +74,14 @@ function PodPayoutQueue({
 
   return (
     <div className="bg-brand-card rounded-2xl border border-brand-border p-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <h2 className="font-semibold text-brand-text flex items-center gap-2">
           <div className="w-7 h-7 rounded-lg bg-brand-primary/8 flex items-center justify-center">
             <Users size={14} className="text-brand-primary" />
           </div>
           Payout Queue
         </h2>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <span className="flex items-center gap-1 text-xs text-brand-success">
             <span className="w-1.5 h-1.5 rounded-full bg-brand-success" />
             {""}

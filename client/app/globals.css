@@ -26,6 +26,11 @@
   --font-mono: var(--font-geist-mono);
 }
 
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 70px; /* Match the height of your header */
+}
+
 body {
   background: var(--color-background);
   color: var(--color-foreground);
@@ -34,6 +39,37 @@ body {
 
 button:enabled {
   @apply cursor-pointer;
+}
+
+/* Mobile touch targets - minimum 44px for accessibility */
+.touch-target {
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* Reduce motion on mobile for performance */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Mobile-specific adjustments */
+@media (max-width: 640px) {
+  /* Smaller typography scale on mobile */
+  .text-5xl {
+    font-size: 2.5rem;
+    line-height: 1.1;
+  }
+  .text-4xl {
+    font-size: 1.875rem;
+    line-height: 1.2;
+  }
 }
 
 /* ─── Keyframes ─── */

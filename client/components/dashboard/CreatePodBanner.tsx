@@ -13,7 +13,7 @@ function CreatePodBanner() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <Link
           href="/pods"
-          className="feature-card bg-brand-card border border-brand-border rounded-2xl p-6 flex items-center gap-4 group"
+          className="feature-card touch-target bg-brand-card border border-brand-border rounded-2xl p-5 sm:p-6 flex items-center gap-4 group"
         >
           <div className="w-11 h-11 rounded-xl bg-brand-primary/8 flex items-center justify-center shrink-0 group-hover:bg-brand-primary/15 transition-colors">
             <Search size={20} className="text-brand-primary" />
@@ -32,7 +32,7 @@ function CreatePodBanner() {
 
         <Link
           href="/my-pods"
-          className="feature-card bg-brand-card border border-brand-border rounded-2xl p-6 flex items-center gap-4 group"
+          className="feature-card touch-target bg-brand-card border border-brand-border rounded-2xl p-5 sm:p-6 flex items-center gap-4 group"
         >
           <div className="w-11 h-11 rounded-xl bg-brand-accent/10 flex items-center justify-center shrink-0 group-hover:bg-brand-accent/20 transition-colors">
             <Layers size={20} className="text-brand-accent" />
@@ -51,7 +51,7 @@ function CreatePodBanner() {
 
         <button
           onClick={() => setCreateOpen(true)}
-          className="feature-card bg-brand-card border border-brand-border rounded-2xl p-6 flex items-center gap-4 group text-left cursor-pointer"
+          className="feature-card touch-target bg-brand-card border border-brand-border rounded-2xl p-5 sm:p-6 flex items-center gap-4 group text-left cursor-pointer"
         >
           <div className="w-11 h-11 rounded-xl bg-brand-success/10 flex items-center justify-center shrink-0 group-hover:bg-brand-success/20 transition-colors">
             <Plus size={20} className="text-brand-success" />

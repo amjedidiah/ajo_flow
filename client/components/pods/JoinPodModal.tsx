@@ -116,7 +116,7 @@ function JoinPodModal({ pod, isOpen, onClose }: Readonly<JoinPodModalProps>) {
             transition={{ duration: 0.15 }}
             onClick={handleClose}
           >
-            <div className="bg-brand-card rounded-2xl shadow-xl w-full max-w-md p-6 flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
+            <div className="bg-brand-card rounded-2xl shadow-xl w-full max-w-md max-h-[90vh] overflow-y-auto p-6 flex flex-col gap-5" onClick={(e) => e.stopPropagation()}>
               {/* Header */}
               <div className="flex items-start justify-between">
                 <div>

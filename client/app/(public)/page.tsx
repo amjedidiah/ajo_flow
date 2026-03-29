@@ -8,6 +8,7 @@ import {
   TrendingUp,
   CheckCircle2,
   Star,
+  ArrowRight,
 } from "lucide-react";
 import Section from "@/components/ui/Section";
 import Motion from "@/components/shared/Motion";
@@ -212,22 +213,28 @@ async function LandingPage() {
               {
                 step: "01",
                 icon: Users,
-                title: "Join a Pod",
-                desc: "Browse open savings circles or create your own. Set the amount, frequency, and member limit.",
+                title: "Sign Up",
+                desc: "Create your account in seconds. We verify your identity and set up your secure profile.",
+                cta: "Create Account",
+                href: "/register",
               },
               {
                 step: "02",
                 icon: TrendingUp,
-                title: "Contribute Weekly",
-                desc: "Your card is debited automatically on schedule. Funds go directly into an Interswitch wallet — never an admin's account.",
+                title: "Join a Pod",
+                desc: "Browse open savings circles or create your own. Choose the amount, frequency, and member limit that works for you.",
+                cta: "Browse Pods",
+                href: "/pods",
               },
               {
                 step: "03",
                 icon: CheckCircle2,
-                title: "Get Paid Out",
-                desc: "When your turn arrives, the full pool is disbursed to your bank account automatically. The AI ensures the queue stays fair.",
+                title: "Save Together, Get Paid",
+                desc: "Contribute on schedule. When your turn arrives, the full pool is disbursed to your bank account automatically.",
+                cta: "Learn More",
+                href: "#faq",
               },
-            ].map(({ step, icon: Icon, title, desc }) => (
+            ].map(({ step, icon: Icon, title, desc, cta, href }) => (
               <Motion
                 key={step}
                 variants={fadeUp}
@@ -247,9 +254,19 @@ async function LandingPage() {
                 <h3 className="font-bold text-brand-text text-lg text-center">
                   {title}
                 </h3>
-                <p className="text-brand-muted text-sm leading-relaxed text-center">
+                <p className="text-brand-muted text-sm leading-relaxed text-center flex-1">
                   {desc}
                 </p>
+                <Link
+                  href={href}
+                  className="inline-flex items-center justify-center gap-2 text-sm font-semibold text-brand-accent hover:text-brand-primary transition-colors group"
+                >
+                  {cta}
+                  <ArrowRight
+                    size={14}
+                    className="transition-transform group-hover:translate-x-0.5"
+                  />
+                </Link>
               </Motion>
             ))}
           </div>

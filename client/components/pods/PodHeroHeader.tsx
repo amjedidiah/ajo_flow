@@ -66,12 +66,12 @@ function PodHeroHeader({
           <ArrowLeft size={12} />
           {podsLink.text}
         </Link>
-        <div className="flex items-start justify-between gap-4">
-          <h1 className="text-3xl md:text-4xl font-black leading-tight">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+          <h1 className="min-w-0 text-3xl font-black leading-tight sm:text-4xl">
             {pod.name}
           </h1>
           <span
-            className={`text-xs font-semibold px-2.5 py-1 rounded-full border ${
+            className={`w-fit shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full border ${
               pod.status === "active"
                 ? "bg-brand-success/15 text-brand-success border-brand-success/30"
                 : "bg-brand-card/10 text-brand-card/60 border-brand-card/20"
@@ -80,7 +80,7 @@ function PodHeroHeader({
             {pod.status === "active" ? "Active" : "Completed"}
           </span>
         </div>
-        <div className="flex items-center gap-5 mt-3 text-sm text-brand-card/50">
+        <div className="mt-3 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-brand-card/50">
           <span className="flex items-center gap-1.5">
             <Calendar size={14} />
             {frequencyLabel[pod.frequency]} contributions

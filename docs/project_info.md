@@ -34,10 +34,10 @@ We leverage the specific legal loophole in the 2026 Tax Act that completely exem
 
 #### How it Works (The Tech Stack)
 
-* **Automated Pay-Ins (Interswitch WebPAY):** Members' daily/weekly contributions can be automatically deducted via their linked cards, removing human friction.
-* **Trustless Wallet (Interswitch Wallet APIs):** The money never touches the group admin’s personal bank account. It sits safely in an Interswitch-powered holding wallet.
-* **Automated Payouts (Interswitch Disbursement API):** At the end of the cycle, the exact lump sum is automatically routed to the correct recipient's bank account.
-* **Emerging Tech (AI Trust Scoring):** Our AI Agent monitors contribution velocity and frequency. If a user has a history of late payments, the AI dynamically adjusts the payout roster, moving them to the last slot to protect the rest of the pool from early-default risk.
+- **Automated Pay-Ins (Interswitch WebPAY):** Members' daily/weekly contributions can be automatically deducted via their linked cards, removing human friction.
+- **Trustless Wallet (Interswitch Wallet APIs):** The money never touches the group admin’s personal bank account. It sits safely in an Interswitch-powered holding wallet.
+- **Automated Payouts (Interswitch Disbursement API):** At the end of the cycle, the exact lump sum is automatically routed to the correct recipient's bank account.
+- **Emerging Tech (AI Trust Scoring):** Our AI Agent monitors contribution velocity and frequency. If a user has a history of late payments, the AI dynamically adjusts the payout roster, moving them to the last slot to protect the rest of the pool from early-default risk.
 
 **Sectors Addressed:** Payments (P), Social Services (S), Emerging Tech (AI).
 
@@ -56,8 +56,8 @@ This allows any group(e.g: gig workers and market women) to pool billions of Nai
 ## The InterSwitch API Integration (The Tech)
 
 1. Pay-In (WebPAY API)
-    * [Add notes for manual payments for users that don't want to automate it]
-    * Users can also automate their daily/weekly ₦2,000 Ajoo contributions using Interswitch's recurring card debits.
+  - [Add notes for manual payments for users that don't want to automate it]
+    - Users can also automate their daily/weekly ₦2,000 Ajoo contributions using Interswitch's recurring card debits.
 2. Holding (Wallet API): The pooled funds sit securely in an Interswitch-powered wallet, removing the risk of the "Ajoo administrator" running away with the money.
 3. Pay-Out (Disbursement API): At the end of the month, the system automatically routes the lump sum to the bank account of the member whose turn it is.
 

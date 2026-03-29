@@ -156,7 +156,7 @@ function Navbar() {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden text-brand-card"
+          className="md:hidden text-brand-card p-2 touch-target flex items-center justify-center"
           onClick={() => setMenuOpen((o) => !o)}
           aria-label="Toggle menu"
         >

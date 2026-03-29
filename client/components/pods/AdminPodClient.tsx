@@ -249,8 +249,10 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
               Admin View
             </span>
           </div>
-          <h1 className="text-4xl font-black leading-tight">{pod.name}</h1>
-          <p className="text-brand-card/60 mt-2 text-sm">
+          <h1 className="text-3xl font-black leading-tight sm:text-4xl">
+            {pod.name}
+          </h1>
+          <p className="mt-2 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-brand-card/60">
             {frequencyLabel[pod.frequency]} · {ngn(pod.contributionAmount)}
             /cycle · {pod.members.length}/{pod.maxMembers} members
           </p>
@@ -340,7 +342,7 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
               pod.payoutQueue.length === 0 ||
               pod.status === "completed"
             }
-            className="hero-cta-primary w-full py-3 rounded-xl font-bold text-brand-primary relative overflow-hidden group disabled:opacity-40 disabled:cursor-not-allowed"
+            className="hero-cta-primary touch-target w-full py-3 rounded-xl font-bold text-brand-primary relative overflow-hidden group disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <span className="relative z-10 flex items-center justify-center gap-2">
               {payoutLoading ? "Processing…" : "Trigger Payout"}
@@ -358,7 +360,7 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
             disabled={
               evalLoading || evalCoolDown > 0 || pod.status === "completed"
             }
-            className="w-full py-3 rounded-xl font-semibold border-2 border-brand-primary text-brand-primary hover:bg-brand-primary/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
+            className="touch-target w-full py-3 rounded-xl font-semibold border-2 border-brand-primary text-brand-primary hover:bg-brand-primary/5 disabled:opacity-40 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2"
           >
             <Brain size={15} />
             {evalButtonText}
@@ -385,7 +387,7 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
                 onChange={(e) =>
                   setManualForm({ ...manualForm, userId: e.target.value })
                 }
-                className="w-full border border-brand-border rounded-xl px-4 py-2.5 text-sm bg-brand-card focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                className="touch-target w-full border border-brand-border rounded-xl px-4 py-2.5 text-sm bg-brand-card focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
               >
                 <option value="">Select member…</option>
                 {pod.members.map((m) => (
@@ -409,7 +411,7 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
                 onChange={(e) =>
                   setManualForm({ ...manualForm, cycleNumber: e.target.value })
                 }
-                className="w-full border border-brand-border rounded-xl px-4 py-2.5 text-sm bg-brand-card focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                className="touch-target w-full border border-brand-border rounded-xl px-4 py-2.5 text-sm bg-brand-card focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
               >
                 {Array.from({ length: pod.maxMembers }, (_, i) => i + 1).map(
                   (c) => (
@@ -437,7 +439,7 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
                 onChange={(e) =>
                   setManualForm({ ...manualForm, timestamp: e.target.value })
                 }
-                className="w-full border border-brand-border rounded-xl px-4 py-2.5 text-sm bg-brand-card focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
+                className="touch-target w-full border border-brand-border rounded-xl px-4 py-2.5 text-sm bg-brand-card focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
               />
               <p className="mt-1 text-[11px] text-brand-muted">
                 Leave empty to use the current time, or backdate to simulate
@@ -447,7 +449,7 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
             <button
               type="submit"
               disabled={manualLoading}
-              className="py-2.5 rounded-xl font-semibold bg-brand-primary text-brand-card hover:bg-brand-primary/90 disabled:opacity-50 transition-colors"
+              className="touch-target py-2.5 rounded-xl font-semibold bg-brand-primary text-brand-card hover:bg-brand-primary/90 disabled:opacity-50 transition-colors"
             >
               {manualLoading ? "Recording…" : "Record Payment"}
             </button>

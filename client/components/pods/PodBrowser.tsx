@@ -69,6 +69,28 @@ function PodBrowser({
         onClose={() => setCreateOpen(false)}
       />
       <section>
+        {!hasToken && (
+          <div className="mb-6 rounded-2xl border border-brand-accent/25 bg-brand-accent/8 p-4 sm:p-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <p className="text-sm font-semibold text-brand-primary">
+                  New here?
+                </p>
+                <p className="mt-1 text-sm leading-relaxed text-brand-muted">
+                  Pick a pod below to explore the flow, or create an account to
+                  start your own savings circle.
+                </p>
+              </div>
+              <Link
+                href="/register"
+                className="touch-target inline-flex items-center justify-center rounded-xl bg-brand-primary px-4 py-2.5 text-sm font-semibold text-brand-card transition-colors hover:bg-brand-primary/92"
+              >
+                Create Account
+              </Link>
+            </div>
+          </div>
+        )}
+
         {/* Toolbar */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <p className="text-sm text-brand-muted">
@@ -80,7 +102,7 @@ function PodBrowser({
           {hasToken ? (
             <button
               onClick={() => setCreateOpen(true)}
-              className="hero-cta-primary shrink-0 px-5 py-2.5 rounded-xl text-brand-primary text-sm font-bold relative overflow-hidden group"
+              className="hero-cta-primary touch-target shrink-0 px-5 py-2.5 rounded-xl text-brand-primary text-sm font-bold relative overflow-hidden group"
             >
               <span className="relative z-10">+ Create Pod</span>
               <span className="hero-cta-shine" />
@@ -88,7 +110,7 @@ function PodBrowser({
           ) : (
             <Link
               href="/login?next=%2Fpods%3Fcreate%3D1"
-              className="hero-cta-primary shrink-0 px-5 py-2.5 rounded-xl text-brand-primary text-sm font-bold relative overflow-hidden group"
+              className="hero-cta-primary touch-target shrink-0 px-5 py-2.5 rounded-xl text-brand-primary text-sm font-bold relative overflow-hidden group"
             >
               <span className="relative z-10">+ Create Pod</span>
               <span className="hero-cta-shine" />
@@ -121,7 +143,7 @@ function PodBrowser({
 
             <button
               onClick={() => setOpenOnly((v) => !v)}
-              className={`shrink-0 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all border ${
+              className={`touch-target shrink-0 px-4 py-2.5 rounded-xl text-xs font-semibold transition-all border ${
                 openOnly
                   ? "bg-brand-primary text-brand-card border-brand-primary"
                   : "bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary/30 hover:text-brand-primary"
@@ -137,7 +159,7 @@ function PodBrowser({
               <button
                 key={f}
                 onClick={() => setFreq(f)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all border ${
+                className={`touch-target px-3 py-1.5 rounded-lg text-xs font-semibold capitalize transition-all border ${
                   freq === f
                     ? "bg-brand-primary text-brand-card border-brand-primary"
                     : "bg-brand-surface text-brand-muted border-brand-border hover:border-brand-primary/30 hover:text-brand-primary"
@@ -153,7 +175,7 @@ function PodBrowser({
               <button
                 key={value}
                 onClick={() => setAmountFilter(value)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
+                className={`touch-target px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border ${
                   amountFilter === value
                     ? "bg-brand-accent text-brand-primary border-brand-accent"
                     : "bg-brand-surface text-brand-muted border-brand-border hover:border-brand-accent/30 hover:text-brand-accent"

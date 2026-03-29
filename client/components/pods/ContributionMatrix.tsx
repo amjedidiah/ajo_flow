@@ -169,7 +169,7 @@ function ContributionMatrix({
 
   return (
     <div className="bg-brand-surface rounded-2xl p-6">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-wrap items-center justify-between mb-4 gap-2">
         <h2 className="font-semibold text-brand-text flex items-center gap-2">
           <Grid3x3 size={16} />
           Contribution Matrix
@@ -193,8 +193,8 @@ function ContributionMatrix({
         </div>
       </div>
 
-      <div className="overflow-x-auto -mx-1 px-1">
-        <table className="w-full text-sm border-collapse">
+      <div className="overflow-x-auto -mx-2 px-2 rounded-lg scrollbar-thin scrollbar-thumb-brand-muted/30 scrollbar-track-transparent">
+        <table className="w-full text-sm border-collapse min-w-[320px]">
           <thead>
             <tr>
               <th className="text-left text-xs font-semibold text-brand-muted pb-3 pr-4 min-w-[100px]">
