@@ -6,7 +6,7 @@ import {
   waitFor,
   cleanup,
 } from "@testing-library/react";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosError, AxiosHeaders, AxiosResponse } from "axios";
 import consola from "consola";
 
 // ─── Mock externals ─────────────────────────────────────────────────────────
@@ -33,6 +33,21 @@ mock.module("@/contexts/AuthContext", () => ({
     clearAuth: () => {},
   }),
 }));
+
+function createAxiosError<T>(status: number, data: T): AxiosError<T> {
+  const err = new AxiosError<T>("Request failed", undefined, {
+    headers: new AxiosHeaders({}),
+  });
+  err.response = {
+    status,
+    statusText: String(status),
+    headers: {},
+    config: err.config!,
+    data,
+  } as AxiosResponse<T>;
+  err.isAxiosError = true;
+  return err;
+}
 
 const createSuccessRegisterMock = () =>
   mock((...args: unknown[]) => {
@@ -171,15 +186,9 @@ describe("RegisterForm", () => {
   });
 
   it("shows error toast on 409 (duplicate email)", async () => {
-    registerMock = mock(() => {
-      const err = new Error("Request failed");
-      // Match the shape expected from Axios errors in the form component.
-      (err as unknown as AxiosError<{ message: string }>).response = {
-        status: 409,
-        data: { message: "Email exists" },
-      } as AxiosResponse<{ message: string }>;
-      return Promise.reject(err);
-    });
+    registerMock = mock(() =>
+      Promise.reject(createAxiosError(409, { message: "Email exists" })),
+    );
 
     render(<RegisterForm />);
     fillForm();
