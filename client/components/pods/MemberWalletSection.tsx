@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { podsApi } from "@/lib/api";
 import WalletBalanceWidget from "./WalletBalanceWidget";
@@ -19,13 +20,13 @@ function MemberWalletSection({
   isAdmin: boolean;
 }>) {
   const [provisionLoading, setProvisionLoading] = useState(false);
-  const [refreshKey, setRefreshKey] = useState(0);
+  const queryClient = useQueryClient();
 
   const handleProvisionWallet = useCallback(async () => {
     setProvisionLoading(true);
     try {
       await podsApi.provisionWallet(podId);
-      setRefreshKey((k) => k + 1);
+      queryClient.invalidateQueries({ queryKey: ["wallet-balance", podId] });
       toast.success("Wallet provisioned.");
     } catch (error) {
       toast.error("Failed to provision wallet.");
@@ -33,12 +34,11 @@ function MemberWalletSection({
     } finally {
       setProvisionLoading(false);
     }
-  }, [podId]);
+  }, [podId, queryClient]);
 
   return (
     <WalletBalanceWidget
       podId={podId}
-      refreshKey={refreshKey}
       onProvisionWallet={handleProvisionWallet}
       provisionLoading={provisionLoading}
       isAdmin={isAdmin}

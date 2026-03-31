@@ -13,6 +13,7 @@ import Link from "next/link";
 import { HexPattern } from "@/components/home/HomeHero";
 import { AxiosError } from "axios";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 import api, { podsApi, paymentsApi } from "@/lib/api";
 import { ngn } from "@/lib/helpers";
 import WalletBalanceWidget from "@/components/pods/WalletBalanceWidget";
@@ -45,6 +46,8 @@ export interface Pod {
   status: "active" | "completed";
   walletId?: string;
   createdBy: string;
+  partialPayoutMemberIds?: string[];
+  nextRecipientMissedCycles?: number[];
 }
 
 
@@ -56,7 +59,9 @@ function axErrMsg(e: unknown): string {
 function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
   const { user } = useAuthContext();
   const [pod, setPod] = useState(initialPod);
-  const [walletRefreshKey, setWalletRefreshKey] = useState(0);
+  const queryClient = useQueryClient();
+  const invalidateWallet = () =>
+    queryClient.invalidateQueries({ queryKey: ["wallet-balance", pod._id] });
   const [trustRefreshKey, setTrustRefreshKey] = useState(0);
   const [payoutLoading, setPayoutLoading] = useState(false);
   const [evalLoading, setEvalLoading] = useState(false);
@@ -101,7 +106,7 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
     try {
       const { data } = await podsApi.payout(pod._id);
       setPod(data.pod);
-      if (data.pod.walletId) setWalletRefreshKey((k) => k + 1);
+      if (data.pod.walletId) invalidateWallet();
       toast.success("Payout triggered successfully.");
     } catch (e) {
       toast.error(axErrMsg(e));
@@ -156,7 +161,7 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
     try {
       const { data } = await podsApi.provisionWallet(pod._id);
       setPod((prev) => (prev ? { ...prev, walletId: data.walletId } : prev));
-      setWalletRefreshKey((k) => k + 1);
+      invalidateWallet();
       toast.success("Wallet provisioned.");
     } catch (e) {
       toast.error(axErrMsg(e));
@@ -176,7 +181,7 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
       });
       const { data } = await api.get<Pod>(`/api/pods/${pod._id}`);
       setPod(data);
-      if (data.walletId) setWalletRefreshKey((k) => k + 1);
+      if (data.walletId) invalidateWallet();
       setManualForm({ userId: "", cycleNumber: String(pod.currentCycle) });
       toast.success("Manual payment recorded.");
     } catch (e) {
@@ -275,7 +280,6 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
         {/* Live wallet balance */}
         <WalletBalanceWidget
           podId={pod._id}
-          refreshKey={walletRefreshKey}
           onProvisionWallet={handleProvisionWallet}
           provisionLoading={provisionLoading}
           isAdmin={pod.createdBy === user?.id}
@@ -285,6 +289,8 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
           podId={pod._id}
           payoutQueue={pod.payoutQueue}
           paidOutMembers={pod.paidOutMembers}
+          partialPayoutMemberIds={pod.partialPayoutMemberIds}
+          nextRecipientMissedCycles={pod.nextRecipientMissedCycles}
           refreshKey={trustRefreshKey}
         />
 

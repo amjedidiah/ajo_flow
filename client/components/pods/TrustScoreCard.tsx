@@ -10,6 +10,7 @@ interface TrustScoreCardProps {
   reasoning?: string;
   movedByAI?: boolean;
   isNext?: boolean;
+  isPartialPayout?: boolean;
 }
 
 const RADIUS = 18;
@@ -62,6 +63,7 @@ function TrustScoreCard({
   reasoning,
   movedByAI = false,
   isNext = false,
+  isPartialPayout = false,
 }: Readonly<TrustScoreCardProps>) {
   return (
     <div className="flex flex-col gap-2">
@@ -102,8 +104,15 @@ function TrustScoreCard({
         </div>
 
         {isNext && (
-          <span className="text-xs font-semibold text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2 py-0.5 rounded-full shrink-0">
-            Next
+          <span className="flex items-center gap-1.5 shrink-0">
+            <span className="text-xs font-semibold text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2 py-0.5 rounded-full">
+              Next
+            </span>
+            {isPartialPayout && (
+              <span className="text-[10px] font-semibold text-brand-warning bg-brand-warning/10 border border-brand-warning/20 px-1.5 py-0.5 rounded-full">
+                Partial
+              </span>
+            )}
           </span>
         )}
       </div>

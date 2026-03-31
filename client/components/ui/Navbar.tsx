@@ -7,7 +7,7 @@ import { Menu, X, Coins, ChevronDown, ChevronUp } from "lucide-react";
 import { useAuthContext } from "@/contexts/AuthContext";
 import { authApi } from "@/lib/api";
 
-const SCROLL_THRESHOLD = 120;
+const SCROLL_THRESHOLD = 50;
 
 function Navbar() {
   const [scrolled, setScrolled] = useState(false);

@@ -4,6 +4,7 @@ import "@/app/globals.css";
 import { Toaster } from "sonner";
 import { PropsWithChildren } from "react";
 import { AuthProvider } from "@/contexts/AuthContext";
+import { QueryProvider } from "@/components/providers/QueryProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,7 +28,9 @@ function RootLayout({ children }: Readonly<PropsWithChildren>) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <AuthProvider>{children}</AuthProvider>
+        <QueryProvider>
+          <AuthProvider>{children}</AuthProvider>
+        </QueryProvider>
         <Toaster position="top-right" richColors closeButton />
       </body>
     </html>

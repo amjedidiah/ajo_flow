@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Users, CheckCircle2 } from "lucide-react";
+import { Users, CheckCircle2, CircleDot } from "lucide-react";
 import { podsApi } from "@/lib/api";
 import TrustScoreCard from "@/components/pods/TrustScoreCard";
 import { AnimatePresence } from "framer-motion";
@@ -24,6 +24,8 @@ interface PodPayoutQueueProps {
   podId: string;
   payoutQueue: Member[];
   paidOutMembers: Member[];
+  partialPayoutMemberIds?: string[];
+  nextRecipientMissedCycles?: number[];
   refreshKey?: number;
 }
 
@@ -31,6 +33,8 @@ function PodPayoutQueue({
   podId,
   payoutQueue,
   paidOutMembers,
+  partialPayoutMemberIds = [],
+  nextRecipientMissedCycles = [],
   refreshKey = 0,
 }: Readonly<PodPayoutQueueProps>) {
   const [trustScores, setTrustScores] = useState<
@@ -42,7 +46,6 @@ function PodPayoutQueue({
       .trustScores(podId)
       .then(({ data }) => setTrustScores(data))
       .catch(() => {});
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [podId, refreshKey]);
 
   return (
@@ -94,6 +97,9 @@ function PodPayoutQueue({
                     reasoning={ts?.reasoning}
                     movedByAI={ts?.movedByAI ?? false}
                     isNext={i === 0}
+                    isPartialPayout={
+                      i === 0 && nextRecipientMissedCycles.length > 0
+                    }
                   />
                 </Motion>
               );
@@ -108,18 +114,33 @@ function PodPayoutQueue({
             Paid Out
           </p>
           <ul className="flex flex-col gap-2">
-            {paidOutMembers.map((m) => (
-              <li
-                key={m._id}
-                className="flex items-center gap-2 text-sm text-brand-muted"
-              >
-                <CheckCircle2
-                  size={14}
-                  className="text-brand-success shrink-0"
-                />
-                {m.name}
-              </li>
-            ))}
+            {paidOutMembers.map((m) => {
+              const isPartial = partialPayoutMemberIds.includes(m._id);
+              return (
+                <li
+                  key={m._id}
+                  className="flex items-center gap-2 text-sm text-brand-muted"
+                >
+                  {isPartial ? (
+                    <CircleDot
+                      size={14}
+                      className="text-brand-warning shrink-0"
+                    />
+                  ) : (
+                    <CheckCircle2
+                      size={14}
+                      className="text-brand-success shrink-0"
+                    />
+                  )}
+                  {m.name}
+                  {isPartial && (
+                    <span className="text-[10px] font-semibold text-brand-warning bg-brand-warning/10 px-1.5 py-0.5 rounded-full">
+                      partial
+                    </span>
+                  )}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

@@ -23,6 +23,8 @@ export interface Pod {
   currentCycleTotal: number;
   status: "active" | "completed";
   createdBy: string;
+  partialPayoutMemberIds?: string[];
+  nextRecipientMissedCycles?: number[];
   virtualAccount?: {
     accountName: string;
     accountNumber: string;

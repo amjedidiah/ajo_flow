@@ -84,7 +84,39 @@ router.get("/:id", async (req, res: Response): Promise<void> => {
 
     const currentCycleTotal: number = cycleAgg[0]?.total ?? 0;
 
-    res.json({ ...pod, currentCycleTotal });
+    // Identify members who received partial payouts (debt > 0)
+    const partialDisbursements = await Transaction.find({
+      pod: pod._id,
+      type: "disbursement",
+      status: "success",
+      debtAmount: { $gt: 0 },
+    }).lean();
+    const partialPayoutMemberIds = partialDisbursements.map((tx) =>
+      tx.user.toString(),
+    );
+
+    // Identify next-in-queue member's missed cycles for "Partial" badge
+    let nextRecipientMissedCycles: number[] = [];
+    if (pod.payoutQueue.length > 0) {
+      const nextId = (pod.payoutQueue[0] as any)._id ?? pod.payoutQueue[0];
+      const paidCycles: number[] = await Transaction.distinct("cycleNumber", {
+        pod: pod._id,
+        user: nextId,
+        type: "contribution",
+        status: { $in: ["success", "manual"] },
+        cycleNumber: { $lt: pod.currentCycle },
+      });
+      for (let c = 1; c < pod.currentCycle; c++) {
+        if (!paidCycles.includes(c)) nextRecipientMissedCycles.push(c);
+      }
+    }
+
+    res.json({
+      ...pod,
+      currentCycleTotal,
+      partialPayoutMemberIds,
+      nextRecipientMissedCycles,
+    });
   } catch (err) {
     console.error(`[pods/get] id=${req.params.id}`, err);
     res.status(500).json({ error: "Failed to fetch pod" });
@@ -166,6 +198,7 @@ router.get(
       const contributions = await Transaction.find({
         pod: pod._id,
         user: req.user!.id,
+        type: "contribution",
       })
         .sort({ timestamp: -1 })
         .lean();
@@ -224,9 +257,15 @@ router.get(
           tx.cycleNumber == null ? "" : ` for Cycle ${tx.cycleNumber}`;
         let text: string;
         if (tx.type === "disbursement") {
+          const txDebt = (tx as any).debtAmount ?? 0;
+          const txMissed: number[] = (tx as any).missedCycles ?? [];
           const cycleText =
             tx.cycleNumber == null ? "" : ` (Cycle ${tx.cycleNumber})`;
-          text = `${name} received a payout of ${amount}${cycleText}`;
+          if (txDebt > 0 && txMissed.length > 0) {
+            text = `${name} received a partial payout of ${amount}${cycleText} — ${fmt(txDebt)} deducted for missed Cycle(s) ${txMissed.join(", ")}`;
+          } else {
+            text = `${name} received a payout of ${amount}${cycleText}`;
+          }
         } else if (tx.status === "success" || tx.status === "manual") {
           text = `${name} contributed ${amount}${forCycle}`;
         } else if (tx.status === "failed") {
@@ -239,6 +278,7 @@ router.get(
           type: tx.type,
           status: tx.status,
           text,
+          debtAmount: (tx as any).debtAmount ?? 0,
           timestamp: tx.timestamp.toISOString(),
         };
       });
@@ -300,6 +340,10 @@ router.get(
         recipientName:
           (tx.user as { _id: string; name: string })?.name ?? "Unknown",
         amount: tx.amount,
+        grossAmount: (tx as any).grossAmount ?? tx.amount,
+        debtAmount: (tx as any).debtAmount ?? 0,
+        missedCycles: (tx as any).missedCycles ?? [],
+        isPartial: ((tx as any).debtAmount ?? 0) > 0,
         timestamp: tx.timestamp.toISOString(),
       }));
 
@@ -688,10 +732,22 @@ router.get(
         return;
       }
 
-      const transactions = await Transaction.find({
-        pod: pod._id,
-        type: "contribution",
-      }).lean();
+      const [transactions, disbursements] = await Promise.all([
+        Transaction.find({ pod: pod._id, type: "contribution" }).lean(),
+        Transaction.find({
+          pod: pod._id,
+          type: "disbursement",
+          status: "success",
+        }).lean(),
+      ]);
+
+      // Build payout status lookup: userId → "partial" | "full"
+      const payoutStatusMap: Record<string, "partial" | "full"> = {};
+      for (const d of disbursements) {
+        const uid = d.user.toString();
+        payoutStatusMap[uid] =
+          ((d as any).debtAmount ?? 0) > 0 ? "partial" : "full";
+      }
 
       // Build a lookup keyed by `userId:cycleNumber` → best status
       // (success/manual beats failed beats pending)
@@ -728,7 +784,8 @@ router.get(
           }
           return { cycle, status };
         });
-        return { userId, name: m.name, cycles };
+        const payoutStatus = payoutStatusMap[userId] ?? null;
+        return { userId, name: m.name, cycles, payoutStatus };
       });
 
       res.json({ totalCycles, currentCycle: pod.currentCycle, members });

@@ -71,9 +71,11 @@ export async function triggerPayout(podId: string): Promise<IPod> {
   });
 
   let debtAmount = 0;
+  const missedCycleNumbers: number[] = [];
   for (let cycle = 1; cycle < freshPod.currentCycle; cycle++) {
     if (!paidPriorCycles.includes(cycle)) {
       debtAmount += freshPod.contributionAmount;
+      missedCycleNumbers.push(cycle);
     }
   }
 
@@ -177,6 +179,9 @@ export async function triggerPayout(podId: string): Promise<IPod> {
       pod: podId,
       user: recipientId,
       amount: netPayoutAmount,
+      grossAmount: payoutAmount,
+      debtAmount,
+      missedCycles: missedCycleNumbers,
       status: "success",
       type: "disbursement",
       interswitchRef: reference,

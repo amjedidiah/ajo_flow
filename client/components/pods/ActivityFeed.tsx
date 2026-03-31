@@ -17,6 +17,7 @@ interface ActivityEvent {
   type: "contribution" | "disbursement" | "trust_evaluation";
   status: string;
   text: string;
+  debtAmount?: number;
   timestamp: string;
 }
 
@@ -31,7 +32,9 @@ function timeAgo(dateStr: string): string {
   return `${days}d ago`;
 }
 
-function getEventStyle(type: string, status: string) {
+function getEventStyle(type: string, status: string, debtAmount?: number) {
+  if (type === "disbursement" && debtAmount && debtAmount > 0)
+    return { Icon: ArrowUpRight, cls: "text-brand-warning bg-brand-warning/10" };
   if (type === "disbursement")
     return { Icon: ArrowUpRight, cls: "text-brand-accent bg-brand-accent/10" };
   if (type === "trust_evaluation" && status === "flagged")
@@ -116,7 +119,7 @@ function ActivityFeed({ podId }: Readonly<{ podId: string }>) {
       </h2>
       <ul className="flex flex-col divide-y divide-brand-border">
         {events.map((event) => {
-          const { Icon, cls } = getEventStyle(event.type, event.status);
+          const { Icon, cls } = getEventStyle(event.type, event.status, event.debtAmount);
           return (
             <li key={event.id} className="flex items-start gap-3 py-3 first:pt-0 last:pb-0">
               <span

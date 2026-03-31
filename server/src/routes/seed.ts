@@ -43,11 +43,20 @@ function makeDisbursement(
   userId: Types.ObjectId,
   cycleNumber: number,
   daysBack: number,
+  overrides?: {
+    netAmount?: number;
+    grossAmount?: number;
+    debtAmount?: number;
+    missedCycles?: number[];
+  },
 ) {
   return {
     pod: podId,
     user: userId,
-    amount: CYCLE_GOAL,
+    amount: overrides?.netAmount ?? CYCLE_GOAL,
+    grossAmount: overrides?.grossAmount ?? CYCLE_GOAL,
+    debtAmount: overrides?.debtAmount ?? 0,
+    missedCycles: overrides?.missedCycles ?? [],
     status: "success",
     type: "disbursement",
     cycleNumber,
@@ -159,7 +168,12 @@ router.post("/", async (_req: Request, res: Response): Promise<void> => {
       makeContribution(pod._id, userB._id, 2, 14, "success"),
       makeContribution(pod._id, userC._id, 2, 14, "failed"),   // Chidi misses cycle 2
       makeContribution(pod._id, userD._id, 2, 14, "success"),
-      makeDisbursement(pod._id, userB._id, 2, 13),
+      makeDisbursement(pod._id, userB._id, 2, 13, {
+        netAmount: 15000,
+        grossAmount: CYCLE_GOAL,
+        debtAmount: CONTRIBUTION_AMOUNT,
+        missedCycles: [1],
+      }),
     ];
 
     // ── Cycle 3 (current, in progress) ──────────────────────────────────────
@@ -260,7 +274,7 @@ router.post("/", async (_req: Request, res: Response): Promise<void> => {
         cycles: {
           completed: 2,
           cycle1: "Amara received ₦20,000 — 3 weeks ago",
-          cycle2: "Bola received ₦20,000 — 2 weeks ago",
+          cycle2: "Bola received ₦15,000 (₦5,000 deducted for missed Cycle 1) — 2 weeks ago",
           cycle3: "In progress — Amara ✓, Bola ✓, Chidi ✓, Dami pending",
           cycle4: "Pending — Dami in queue",
         },
@@ -268,7 +282,7 @@ router.post("/", async (_req: Request, res: Response): Promise<void> => {
           "amara@demo.com":
             "Perfect record — score 92, received payout in Cycle 1",
           "bola@demo.com":
-            "Failed Cycle 1, reliable since — score 71, received payout in Cycle 2",
+            "Failed Cycle 1, reliable since — score 71, received partial payout ₦15,000 in Cycle 2 (₦5,000 deducted)",
           "chidi@demo.com":
             "Failed Cycle 2, otherwise reliable — score 64, next in queue",
           "dami@demo.com":

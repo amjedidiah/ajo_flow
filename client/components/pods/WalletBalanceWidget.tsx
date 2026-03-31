@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Wallet,
   RefreshCw,
@@ -9,7 +9,7 @@ import {
   Check,
   Building2,
 } from "lucide-react";
-import { AxiosError } from "axios";
+import { useQuery } from "@tanstack/react-query";
 import { podsApi } from "@/lib/api";
 import { ngn } from "@/lib/helpers";
 import { useAuthContext } from "@/contexts/AuthContext";
@@ -54,54 +54,53 @@ function CopyButton({ text }: Readonly<{ text: string }>) {
 
 function WalletBalanceWidget({
   podId,
-  refreshKey = 0,
   onProvisionWallet = async () => {},
   provisionLoading = false,
   isAdmin = false,
 }: Readonly<{
   podId: string;
-  refreshKey?: number;
   onProvisionWallet?: () => Promise<void>;
   provisionLoading?: boolean;
   isAdmin?: boolean;
 }>) {
   const { hasToken, isInitialized } = useAuthContext();
-  const [balance, setBalance] = useState<number | null>(null);
-  const [ledgerBalance, setLedgerBalance] = useState<number | null>(null);
-  const [virtualAccount, setVirtualAccount] = useState<VirtualAccount | null>(null);
-  const [widgetState, setWidgetState] = useState<WidgetState>("loading");
+  const [showLedger, setShowLedger] = useState(false);
 
-  const load = useCallback(async () => {
-    setWidgetState("loading");
-    try {
-      const { data } = await podsApi.walletBalance(podId);
-      if (data.balance === null) {
-        // Wallet not provisioned - admin interaction
-        setWidgetState("not_provisioned");
-      } else {
-        setBalance(data.balance);
-        setLedgerBalance(data.ledgerBalance ?? null);
-        setVirtualAccount(data.virtualAccount ?? null);
-        setWidgetState("ready");
-      }
-    } catch (err: unknown) {
-      const status = (err as AxiosError).response?.status;
-      // 401 = not logged in, 403 = not a member — hide silently
-      setWidgetState(status === 401 || status === 403 ? "hidden" : "error");
-    }
-  }, [podId]);
+  const { data, isLoading, isError, refetch, isRefetching } = useQuery({
+    queryKey: ["wallet-balance", podId],
+    queryFn: () => podsApi.walletBalance(podId).then((r) => r.data),
+    refetchInterval: 30_000,
+    enabled: isInitialized && hasToken,
+    retry: 1,
+  });
 
+  const widgetState: WidgetState = useMemo(() => {
+    if (isLoading) return "loading";
+    else if (isError) return "error";
+    else if (data?.balance === null) return "not_provisioned";
+    else if (data) return "ready";
+
+    return "loading";
+  }, [data, isError, isLoading]);
+
+  const balance = data?.balance ?? null;
+  const ledgerBalance = data?.ledgerBalance ?? null;
+  const virtualAccount: VirtualAccount | null = data?.virtualAccount ?? null;
+
+  // Track balance changes to retrigger CSS animation via key swap
+  const [balanceKey, setBalanceKey] = useState(0);
+  const [hasLoaded, setHasLoaded] = useState(false);
   useEffect(() => {
-    // Don't call the authenticated endpoint if the user has no session.
-    // api.ts would intercept the 401, attempt a refresh, and redirect to /login.
-    if (!isInitialized || !hasToken) return;
-    const t = setTimeout(load, 0);
-    return () => clearTimeout(t);
-    // refreshKey increment triggers a re-fetch without any other state change
-  }, [load, isInitialized, hasToken, refreshKey]);
+    if (balance === null) return;
+    if (!hasLoaded) {
+      setHasLoaded(true);
+      return;
+    }
+    setBalanceKey((k) => k + 1);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [balance]);
 
-  // Derive hidden state from auth — avoids calling setState inside the effect
-  if (!isInitialized || !hasToken || widgetState === "hidden") return null;
+  if (!isInitialized || !hasToken) return null;
 
   if (widgetState === "loading") {
     return (
@@ -129,11 +128,14 @@ function WalletBalanceWidget({
         <span className="font-bold text-brand-text">Wallet</span>
       </div>
       <button
-        onClick={load}
+        onClick={() => refetch()}
         className="text-xs text-brand-muted hover:text-brand-primary flex items-center gap-1 transition-colors"
       >
-        <RefreshCw size={12} />
-        Refresh
+        <RefreshCw
+          size={12}
+          className={isRefetching ? "animate-spin" : ""}
+        />
+        {isRefetching ? "Syncing…" : "Refresh"}
       </button>
     </div>
   );
@@ -190,7 +192,7 @@ function WalletBalanceWidget({
   return (
     <div className="bg-brand-card rounded-2xl border border-brand-border p-6 relative overflow-hidden">
       <div
-        className="absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl"
+        className={`absolute left-0 top-0 bottom-0 w-1 rounded-l-2xl ${isRefetching ? "animate-pulse" : ""}`}
         style={{
           background:
             "linear-gradient(180deg, var(--color-brand-accent), var(--color-brand-accent-light))",
@@ -198,20 +200,43 @@ function WalletBalanceWidget({
       />
       <div className="pl-3">
         {header}
-        <p className="text-4xl font-black text-brand-primary">
-          {ngn(balance ?? 0)}
+
+        {ledgerBalance !== null && (
+          <div className="flex rounded-lg border border-brand-border overflow-hidden mb-3 text-xs font-semibold">
+            <button
+              onClick={() => setShowLedger(false)}
+              className={`flex-1 px-3 py-1.5 transition-colors ${
+                showLedger
+                  ? "bg-brand-surface text-brand-muted hover:text-brand-text"
+                  : "bg-brand-primary text-white"
+              }`}
+            >
+              Interswitch
+            </button>
+            <button
+              onClick={() => setShowLedger(true)}
+              className={`flex-1 px-3 py-1.5 transition-colors ${
+                showLedger
+                  ? "bg-brand-primary text-white"
+                  : "bg-brand-surface text-brand-muted hover:text-brand-text"
+              }`}
+            >
+              Ledger
+            </button>
+          </div>
+        )}
+
+        <p
+          key={`bal-${balanceKey}`}
+          className="text-4xl font-black text-brand-primary animate-[balanceFlash_0.8s_ease-out]"
+        >
+          {ngn(showLedger ? (ledgerBalance ?? 0) : (balance ?? 0))}
         </p>
         <p className="text-xs text-brand-muted mt-1.5">
-          Live balance held in a wallet — not in any admin account.
+          {showLedger
+            ? "Net balance (contributions minus payouts) — tracked internally."
+            : "Live balance held in a wallet — not in any admin account."}
         </p>
-        {ledgerBalance !== null && (
-          <p className="text-xs text-brand-muted mt-1">
-            Net balance (contributions minus payouts):{" "}
-            <span className="font-semibold text-brand-text">
-              {ngn(ledgerBalance)}
-            </span>
-          </p>
-        )}
 
         {virtualAccount && (
           <div

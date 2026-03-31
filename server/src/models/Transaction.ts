@@ -8,6 +8,9 @@ export interface ITransaction extends Document {
   type: 'contribution' | 'disbursement';
   interswitchRef?: string;
   cycleNumber?: number;
+  grossAmount?: number;
+  debtAmount?: number;
+  missedCycles?: number[];
   timestamp: Date;
 }
 
@@ -20,6 +23,9 @@ const TransactionSchema = new Schema<ITransaction>(
     type: { type: String, enum: ['contribution', 'disbursement'], default: 'contribution' },
     interswitchRef: { type: String },
     cycleNumber: { type: Number },
+    grossAmount: { type: Number },
+    debtAmount: { type: Number },
+    missedCycles: [{ type: Number }],
     timestamp: { type: Date, default: Date.now },
   },
   { timestamps: true }

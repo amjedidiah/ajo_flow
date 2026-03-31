@@ -37,6 +37,17 @@ button:enabled {
 }
 
 /* ─── Keyframes ─── */
+@keyframes balanceFlash {
+  0% {
+    color: var(--color-brand-accent);
+    transform: scale(1.03);
+  }
+  100% {
+    color: var(--color-brand-primary);
+    transform: scale(1);
+  }
+}
+
 @keyframes shimmer {
   0% {
     background-position: 200% center;

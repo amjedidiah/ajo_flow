@@ -10,6 +10,10 @@ interface PayoutCycle {
   recipientId: string | null;
   recipientName: string;
   amount: number;
+  grossAmount?: number;
+  debtAmount?: number;
+  missedCycles?: number[];
+  isPartial?: boolean;
   timestamp: string;
 }
 
@@ -45,29 +49,52 @@ function PayoutCyclesExpanded({
 
   return (
     <ol className="flex flex-col gap-3 mt-4">
-      {cycles.map((c) => (
-        <li
-          key={c.cycle}
-          className="flex items-center justify-between bg-brand-card rounded-xl px-4 py-3 border border-brand-border"
-        >
-          <div className="flex items-center gap-3">
-            <span className="w-7 h-7 flex items-center justify-center rounded-full bg-brand-accent/15 text-brand-accent text-xs font-bold shrink-0">
-              {c.cycle}
-            </span>
-            <div>
-              <p className="text-sm font-semibold text-brand-text">
-                {c.recipientName}
-              </p>
-              <p className="text-xs text-brand-muted">
-                {formatDate(c.timestamp)}
-              </p>
+      {cycles.map((c) => {
+        const partial = c.isPartial ?? (c.debtAmount != null && c.debtAmount > 0);
+        return (
+          <li
+            key={c.cycle}
+            className={`flex flex-col bg-brand-card rounded-xl px-4 py-3 border ${
+              partial ? "border-brand-warning/40" : "border-brand-border"
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span
+                  className={`w-7 h-7 flex items-center justify-center rounded-full text-xs font-bold shrink-0 ${
+                    partial
+                      ? "bg-brand-warning/15 text-brand-warning"
+                      : "bg-brand-accent/15 text-brand-accent"
+                  }`}
+                >
+                  {c.cycle}
+                </span>
+                <div>
+                  <p className="text-sm font-semibold text-brand-text">
+                    {c.recipientName}
+                  </p>
+                  <p className="text-xs text-brand-muted">
+                    {formatDate(c.timestamp)}
+                  </p>
+                </div>
+              </div>
+              <span
+                className={`text-sm font-bold ${
+                  partial ? "text-brand-warning" : "text-brand-success"
+                }`}
+              >
+                +{ngn(c.amount)}
+              </span>
             </div>
-          </div>
-          <span className="text-sm font-bold text-brand-success">
-            +{ngn(c.amount)}
-          </span>
-        </li>
-      ))}
+            {partial && c.debtAmount != null && c.missedCycles != null && (
+              <p className="text-xs text-brand-warning mt-2 ml-10">
+                {ngn(c.debtAmount)} deducted for missed Cycle(s){" "}
+                {c.missedCycles.join(", ")}
+              </p>
+            )}
+          </li>
+        );
+      })}
     </ol>
   );
 }
