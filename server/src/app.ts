@@ -46,6 +46,24 @@ export function createApp() {
   app.use("/api/trust", trustRoutes);
   app.use("/api/payments", paymentRoutes);
 
+  app.get("/", (_req, res) =>
+    res.json({
+      name: "AjoFlow API",
+      description:
+        "AI-powered digital ROSCA platform — trustless wallets and AI-based trust scoring",
+      version: "1.0.0",
+      health: "/health",
+      docs: "https://github.com/amjedidiah/enyata_interswitch_hackathon",
+      endpoints: {
+        auth: "/auth",
+        pods: "/api/pods",
+        payments: "/api/payments",
+        stats: "/api/stats",
+        trust: "/api/trust",
+      },
+    }),
+  );
+
   app.get("/health", (_req, res) => res.json({ status: "ok" }));
 
   // Global error handler
