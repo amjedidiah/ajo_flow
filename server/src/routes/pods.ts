@@ -59,24 +59,15 @@ router.get("/:id", async (req, res: Response): Promise<void> => {
     }
 
     // Compute current cycle contributions: sum of successful contributions
-    // since the most recent disbursement (or from the beginning if none).
-    const lastPayout = await Transaction.findOne({
-      pod: pod._id,
-      type: "disbursement",
-      status: "success",
-    })
-      .sort({ timestamp: -1 })
-      .lean();
-
-    const cycleStartDate = lastPayout?.timestamp ?? new Date(0);
-
+    // for the current cycle number (not timestamp-based, so pre-paid future
+    // cycles don't inflate the current cycle's progress bar).
     const cycleAgg = await Transaction.aggregate([
       {
         $match: {
           pod: pod._id,
           type: "contribution",
           status: { $in: ["success", "manual"] },
-          timestamp: { $gt: cycleStartDate },
+          cycleNumber: pod.currentCycle,
         },
       },
       { $group: { _id: null, total: { $sum: "$amount" } } },
@@ -727,11 +718,14 @@ router.get(
         return;
       }
 
-      if (pod.createdBy.toString() !== req.user!.id) {
+      const isMember = pod.members.some(
+        (m) => (m._id as { toString(): string }).toString() === req.user!.id,
+      );
+      if (!isMember) {
         res
           .status(403)
           .json({
-            error: "Only the pod admin can view the contribution matrix",
+            error: "Only pod members can view the contribution matrix",
           });
         return;
       }

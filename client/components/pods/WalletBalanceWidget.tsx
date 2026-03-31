@@ -64,7 +64,6 @@ function WalletBalanceWidget({
   isAdmin?: boolean;
 }>) {
   const { hasToken, isInitialized } = useAuthContext();
-  const [showLedger, setShowLedger] = useState(false);
 
   const { data, isLoading, isError, refetch, isRefetching } = useQuery({
     queryKey: ["wallet-balance", podId],
@@ -74,18 +73,27 @@ function WalletBalanceWidget({
     retry: 1,
   });
 
-  const widgetState: WidgetState = useMemo(() => {
-    if (isLoading) return "loading";
-    else if (isError) return "error";
-    else if (data?.balance === null) return "not_provisioned";
-    else if (data) return "ready";
-
-    return "loading";
-  }, [data, isError, isLoading]);
-
   const balance = data?.balance ?? null;
   const ledgerBalance = data?.ledgerBalance ?? null;
   const virtualAccount: VirtualAccount | null = data?.virtualAccount ?? null;
+  const walletNotProvisioned = data?.balance === null;
+
+  // Default to ledger tab when Interswitch wallet is not provisioned
+  const [showLedger, setShowLedger] = useState(false);
+  useEffect(() => {
+    if (walletNotProvisioned && ledgerBalance !== null) setShowLedger(true);
+  }, [walletNotProvisioned, ledgerBalance]);
+
+  const widgetState: WidgetState = useMemo(() => {
+    if (isLoading) return "loading";
+    else if (isError) return "error";
+    // Show the full widget when there's a ledger balance, even without Interswitch
+    else if (walletNotProvisioned && (ledgerBalance ?? 0) > 0) return "ready";
+    else if (walletNotProvisioned) return "not_provisioned";
+    else if (data) return "ready";
+
+    return "loading";
+  }, [data, isError, isLoading, walletNotProvisioned, ledgerBalance]);
 
   // Track balance changes to retrigger CSS animation via key swap
   const [balanceKey, setBalanceKey] = useState(0);
@@ -226,17 +234,40 @@ function WalletBalanceWidget({
           </div>
         )}
 
-        <p
-          key={`bal-${balanceKey}`}
-          className="text-4xl font-black text-brand-primary animate-[balanceFlash_0.8s_ease-out]"
-        >
-          {ngn(showLedger ? (ledgerBalance ?? 0) : (balance ?? 0))}
-        </p>
-        <p className="text-xs text-brand-muted mt-1.5">
-          {showLedger
-            ? "Net balance (contributions minus payouts) — tracked internally."
-            : "Live balance held in a wallet — not in any admin account."}
-        </p>
+        {!showLedger && walletNotProvisioned ? (
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center gap-2 text-sm text-brand-warning">
+              <AlertTriangle size={14} className="shrink-0" />
+              Interswitch wallet not provisioned.
+            </div>
+            {isAdmin && (
+              <button
+                onClick={onProvisionWallet}
+                disabled={provisionLoading}
+                className="self-start hero-cta-primary px-4 py-2 rounded-xl font-semibold text-sm text-brand-primary relative overflow-hidden disabled:opacity-50"
+              >
+                <span className="relative z-10">
+                  {provisionLoading ? "Provisioning…" : "Provision Wallet"}
+                </span>
+                <span className="hero-cta-shine" />
+              </button>
+            )}
+          </div>
+        ) : (
+          <>
+            <p
+              key={`bal-${balanceKey}`}
+              className="text-4xl font-black text-brand-primary animate-[balanceFlash_0.8s_ease-out]"
+            >
+              {ngn(showLedger ? (ledgerBalance ?? 0) : (balance ?? 0))}
+            </p>
+            <p className="text-xs text-brand-muted mt-1.5">
+              {showLedger
+                ? "Net balance (contributions minus payouts) — tracked internally."
+                : "Live balance held in a wallet — not in any admin account."}
+            </p>
+          </>
+        )}
 
         {virtualAccount && (
           <div

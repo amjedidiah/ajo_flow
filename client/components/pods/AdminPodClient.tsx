@@ -392,10 +392,13 @@ function AdminPodClient({ pod: initialPod }: Readonly<{ pod: Pod }>) {
                 }
                 className="w-full border border-brand-border rounded-xl px-4 py-2.5 text-sm bg-brand-card focus:outline-none focus:ring-2 focus:ring-brand-primary/30"
               >
-                {Array.from({ length: pod.currentCycle }, (_, i) => i + 1).map(
+                {Array.from({ length: pod.maxMembers }, (_, i) => i + 1).map(
                   (c) => (
                     <option key={c} value={c}>
-                      Cycle {c} — {ngn(pod.contributionAmount)}
+                      Cycle {c}
+                      {c === pod.currentCycle ? " (current)" : ""}{" "}
+                      {c > pod.currentCycle ? " (future)" : ""} —{" "}
+                      {ngn(pod.contributionAmount)}
                     </option>
                   ),
                 )}

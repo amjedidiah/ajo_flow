@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { useAuthContext } from "@/contexts/AuthContext";
 import JoinButton from "@/components/pods/JoinButton";
 import ContributeButton from "@/components/pods/ContributeButton";
@@ -23,12 +25,26 @@ function PodDetailClient({
   pod,
   variant,
 }: Readonly<{ pod: Pod; variant: "public" | "member" }>) {
-  const { user } = useAuthContext();
+  const { user, isInitialized } = useAuthContext();
+  const router = useRouter();
   const userId = user?.id ?? null;
 
   const isFull = pod.members.length >= pod.maxMembers;
   const isMember = pod.members.some((m) => m._id === userId);
   const isAdmin = pod.createdBy === userId;
+
+  // Redirect non-members away from /my-pods/:id to the public view
+  useEffect(() => {
+    if (
+      variant === "member" &&
+      isInitialized &&
+      userId &&
+      !isMember &&
+      !isAdmin
+    ) {
+      router.replace(`/pods/${pod._id}`);
+    }
+  }, [variant, isInitialized, userId, isMember, isAdmin, pod._id, router]);
 
   return (
     <div className="max-w-2xl mx-auto px-6 py-6 flex flex-col gap-5">

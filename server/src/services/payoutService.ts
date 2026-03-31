@@ -41,13 +41,29 @@ export async function triggerPayout(podId: string): Promise<IPod> {
     );
   }
 
-  // Gross payout = one full cycle (all members contribute once).
-  // The recipient does not contribute in their own payout cycle — that is by design.
-  const payoutAmount = pod.contributionAmount * pod.maxMembers;
+  // Gross payout = (maxMembers - 1) contributions. The recipient does not
+  // contribute in their own payout cycle — that is by design, not a "miss".
+  const payoutAmount = pod.contributionAmount * (pod.maxMembers - 1);
 
-  // Debt deduction: if the recipient missed contributions in any prior cycle,
-  // their payout is reduced by that amount. The shortfall is recovered here
-  // rather than blocking the payout entirely (debt carry-forward model).
+  // Debt deduction: if the recipient missed contributions in prior cycles
+  // where they WERE expected to contribute (i.e. not their own payout cycle),
+  // their payout is reduced. The shortfall is recovered here rather than
+  // blocking the payout entirely (debt carry-forward model).
+  //
+  // The recipient's own payout cycle is the current one, so we only look at
+  // prior cycles (1 .. currentCycle-1). But we must also exclude any cycle
+  // where this member was the recipient (they were paid out and not expected
+  // to contribute). We identify those by checking paidOutMembers position:
+  // the member at paidOutMembers[i] was paid out in cycle (i+1).
+  const recipientPaidOutCycles = new Set<number>();
+  for (let i = 0; i < pod.paidOutMembers.length; i++) {
+    if (pod.paidOutMembers[i].toString() === recipientId.toString()) {
+      recipientPaidOutCycles.add(i + 1);
+    }
+  }
+  // Current cycle is also the recipient's payout cycle
+  recipientPaidOutCycles.add(pod.currentCycle);
+
   const paidPriorCycles: number[] = await Transaction.distinct("cycleNumber", {
     pod: podId,
     user: recipientId,
@@ -59,6 +75,8 @@ export async function triggerPayout(podId: string): Promise<IPod> {
   let debtAmount = 0;
   const missedCycleNumbers: number[] = [];
   for (let cycle = 1; cycle < pod.currentCycle; cycle++) {
+    // Skip cycles where this member was the payout recipient
+    if (recipientPaidOutCycles.has(cycle)) continue;
     if (!paidPriorCycles.includes(cycle)) {
       debtAmount += pod.contributionAmount;
       missedCycleNumbers.push(cycle);

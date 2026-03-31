@@ -72,9 +72,9 @@ function PodPayoutQueue({
         </h2>
         <div className="flex items-center gap-2">
           <span className="flex items-center gap-1 text-xs text-brand-success">
-            <span className="w-1.5 h-1.5 rounded-full bg-brand-success animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-brand-success" />
             {""}
-            Live
+            Active
           </span>
           <span className="text-xs text-brand-muted">
             {payoutQueue.length} remaining

@@ -25,7 +25,8 @@ function PoolProgress({ pod }: Readonly<{ pod: Pod }>) {
   }, [pod._id]);
 
   const totalCycles = pod.maxMembers;
-  const cycleGoal = pod.contributionAmount * pod.maxMembers;
+  // The recipient doesn't contribute in their own cycle, so the goal is (N-1)
+  const cycleGoal = pod.contributionAmount * (pod.maxMembers - 1);
   const progress = Math.min((pod.currentCycleTotal / cycleGoal) * 100, 100);
 
   const cycles = Array.from({ length: totalCycles }, (_, i) => {

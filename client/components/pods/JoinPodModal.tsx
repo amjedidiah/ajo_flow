@@ -137,19 +137,21 @@ function JoinPodModal({ pod, isOpen, onClose }: Readonly<JoinPodModalProps>) {
                 <>
                   <div className="bg-brand-success/10 rounded-xl p-4 text-center">
                     <p className="text-brand-success font-semibold">
-                      Successfully joined {pod.name}
+                      Successfully joined {pod.name}!
                     </p>
                     <p className="text-sm text-brand-muted mt-1">
-                      Transfer {fmt(totalAmount)} to the account below to fund your contribution.
+                      Your contribution of {fmt(totalAmount)} ({cycles} cycle{cycles > 1 ? "s" : ""}) has been recorded.
                     </p>
                   </div>
 
                   {va && (
                     <div className="bg-brand-surface rounded-xl p-4 flex flex-col gap-3">
+                      <p className="text-xs font-semibold text-brand-muted uppercase tracking-wider mb-1">
+                        For future contributions
+                      </p>
                       <CopyField label="Account Number" value={va.accountNumber} />
                       <CopyField label="Bank" value={va.bankName} />
                       <CopyField label="Account Name" value={va.accountName} />
-                      <CopyField label="Amount" value={fmt(totalAmount)} />
                     </div>
                   )}
 
